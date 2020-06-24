@@ -5,16 +5,37 @@ import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Card from 'react-bootstrap/Card'
+import Navbar from 'react-bootstrap/Navbar'
+import axios from 'axios';
 
 class App extends Component {
 
   constructor(props) {
     super(props);
     this.state = {
+      username: '',
       minutes: 0,
       seconds: 0,
       miliseconds: 0
     };
+  }
+
+  async componentDidMount() {
+    try {
+      // Get token from url /?jwt=<JWT_TOKEN>
+      const token = this.props.location.search.split("=")[1]
+      const config = {
+        headers: { Authorization: `Bearer ${token}` }
+      };
+      const url = process.env.REACT_APP_SERVER_URL
+
+      const response = await axios.get(url, config)
+      this.setState({
+        username: response.data.payload.name
+      })
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   // Update total time
@@ -52,10 +73,19 @@ class App extends Component {
   }
 
   render() {
-    const { minutes, seconds, miliseconds } = this.state;
+    const { username, minutes, seconds, miliseconds } = this.state;
 
     return (
       <div className="App">
+        <Navbar bg="primary" variant="dark">
+          <Navbar.Brand href="#home">Timer App</Navbar.Brand>
+          <Navbar.Toggle />
+          <Navbar.Collapse className="justify-content-end">
+            <Navbar.Text>
+              {username}
+            </Navbar.Text>
+          </Navbar.Collapse>
+        </Navbar>
         <Container>
           <Card className="mx-auto my-5" style={{ width: '18rem' }}>
             <Card.Body>
